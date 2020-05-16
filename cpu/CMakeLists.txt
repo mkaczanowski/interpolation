@@ -10,6 +10,7 @@ find_package(OpenCV REQUIRED )
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 14)
+set_source_files_properties( ../lib/lib.c PROPERTIES LANGUAGE CXX )
 
 add_executable(
     interpolation
