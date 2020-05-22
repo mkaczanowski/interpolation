@@ -13,11 +13,11 @@ set(CMAKE_CXX_STANDARD 14)
 set_source_files_properties( ../../lib/lib.c PROPERTIES LANGUAGE CXX )
 
 # add epiphany libs
-find_library(E_HAL e-hal)
-find_library(E_LOADER e-loader)
-
 include_directories( /opt/adapteva/esdk/tools/host/include )
-link_directories( /opt/adapteva/esdk/tools/host/lib )
+find_library(E_HAL e-hal HINTS /opt/adapteva/esdk/tools/host/lib)
+find_library(E_LOADER e-loader HINTS /opt/adapteva/esdk/tools/host/lib)
+
+add_compile_options(-Wall -Wextra)
 
 add_executable(
     interpolation

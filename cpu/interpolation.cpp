@@ -111,7 +111,7 @@ int main(void) {
         }
 
         // run bilinear transformation
-        processImage(image, &newImage, &oldPixels, &newPixels, 3000);
+        processImage(image, &newImage, &oldPixels, &newPixels, 1500);
 
         // end timing
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -126,6 +126,7 @@ int main(void) {
         }
 
         SDL_FreeSurface(image);
+		break;
     }
 
     cap.release();

@@ -8,8 +8,8 @@ CUDA_DEV void bilinearTransform(
 	uint8_t *input,
 	uint16_t pitchOutput,
 	uint16_t pitchInput,
-	uint16_t bytesPerPixelInput,
-	uint16_t bytesPerPixelOutput,
+	uint8_t bytesPerPixelInput,
+	uint8_t bytesPerPixelOutput,
 	float xRatio,
 	float yRatio
 ){
