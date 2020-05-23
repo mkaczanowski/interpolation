@@ -46,80 +46,80 @@ void processImage(SDL_Surface *image, SDL_Surface **newImage, int rWidth) {
 
     // copy original image to device memory
     if (old_mbuf.memfd == 0) {
-		int rc = e_shm_alloc(&old_mbuf, old_shm_name, imageByteLength);
-		if (rc != E_OK)
-			rc = e_shm_attach(&old_mbuf, old_shm_name);
+        int rc = e_shm_alloc(&old_mbuf, old_shm_name, imageByteLength);
+        if (rc != E_OK)
+            rc = e_shm_attach(&old_mbuf, old_shm_name);
     }
 
-	int n = e_write(&old_mbuf, 0, 0, 0, (void*) pixels, imageByteLength);
-	if (n != imageByteLength || imageByteLength == 0) {
-		cout << "failed to copy image to shared memory, imageByteLength: " << imageByteLength << endl;
-		return;
-	}
+    int n = e_write(&old_mbuf, 0, 0, 0, (void*) pixels, imageByteLength);
+    if (n != imageByteLength || imageByteLength == 0) {
+        cout << "failed to copy image to shared memory, imageByteLength: " << imageByteLength << endl;
+        return;
+    }
 
     // initialize shared memory region
     if (new_mbuf.memfd == 0) {
-		int rc = e_shm_alloc(&new_mbuf, new_shm_name, newImageByteLength);
-		if (rc != E_OK)
-			rc = e_shm_attach(&new_mbuf, new_shm_name);
+        int rc = e_shm_alloc(&new_mbuf, new_shm_name, newImageByteLength);
+        if (rc != E_OK)
+            rc = e_shm_attach(&new_mbuf, new_shm_name);
     }
 
     // start measuring time
     auto start = std::chrono::high_resolution_clock::now(); 
 
-	// core state
-	int** cores = (int**) calloc(platform.rows, sizeof(int*));
-	for(int i = 0; i < 100; ++i) {
-		cores[i] = (int*) calloc(platform.cols, sizeof(int));
-	}
+    // core state
+    int** cores = (int**) calloc(platform.rows, sizeof(int*));
+    for(int i = 0; i < 100; ++i) {
+        cores[i] = (int*) calloc(platform.cols, sizeof(int));
+    }
 
-	for (unsigned row = 0; row < platform.rows; row++) {
-		for (unsigned col = 0; col < platform.cols; col++) {
-    		// write args to epiphany
-			e_write(&dev, row, col, 0x7000, &((*newImage)->pitch), sizeof(uint16_t)); // pitchOutput
-			e_write(&dev, row, col, 0x7004, &(image->pitch), sizeof(uint16_t)); // pitchInput
-			e_write(&dev, row, col, 0x7008, &imageByteLength, sizeof(int)); // imageByteLength
-			e_write(&dev, row, col, 0x7012, &newImageByteLength, sizeof(int)); // newByteLength
-			e_write(&dev, row, col, 0x7016, &newWidth, sizeof(int)); // newWidth
-			e_write(&dev, row, col, 0x7020, &newHeight, sizeof(int)); // newHeight
-			e_write(&dev, row, col, 0x7024, &xRatio, sizeof(float)); // xRatio
-			e_write(&dev, row, col, 0x7028, &yRatio, sizeof(float)); // xRatio
+    for (unsigned row = 0; row < platform.rows; row++) {
+        for (unsigned col = 0; col < platform.cols; col++) {
+            // write args to epiphany
+            e_write(&dev, row, col, 0x7000, &((*newImage)->pitch), sizeof(uint16_t)); // pitchOutput
+            e_write(&dev, row, col, 0x7004, &(image->pitch), sizeof(uint16_t)); // pitchInput
+            e_write(&dev, row, col, 0x7008, &(image->format->BytesPerPixel), sizeof(uint16_t)); // bytesPerPixelInput
+            e_write(&dev, row, col, 0x7012, &((*newImage)->format->BytesPerPixel), sizeof(uint16_t)); // bytesPerPixelOutput
+            e_write(&dev, row, col, 0x7016, &newWidth, sizeof(int)); // newWidth
+            e_write(&dev, row, col, 0x7020, &newHeight, sizeof(int)); // newHeight
+            e_write(&dev, row, col, 0x7024, &xRatio, sizeof(float)); // xRatio
+            e_write(&dev, row, col, 0x7028, &yRatio, sizeof(float)); // xRatio
 
-			// unlock work on the core
-			e_write(&dev, row, col, 0x7032, &(cores[row][col]), sizeof(uint8_t));
-		}
-	}
+            // unlock work on the core
+            e_write(&dev, row, col, 0x7032, &(cores[row][col]), sizeof(uint8_t));
+        }
+    }
 
-	// wait for jobs to finish
-	while (1) {
-		unsigned skipped = 0;
-		for (unsigned row = 0; row < platform.rows; row++) {
-			for (unsigned col = 0; col < platform.cols; col++) {
-				if (cores[row][col] == 1) {
-					skipped++;
-				}
+    // wait for jobs to finish
+    while (1) {
+        unsigned skipped = 0;
+        for (unsigned row = 0; row < platform.rows; row++) {
+            for (unsigned col = 0; col < platform.cols; col++) {
+                if (cores[row][col] == 1) {
+                    skipped++;
+                }
 
-				e_read(&dev, row, col, 0x7032, &(cores[row][col]), sizeof(int));
-			}
-		}
+                e_read(&dev, row, col, 0x7032, &(cores[row][col]), sizeof(int));
+            }
+        }
 
-		if (skipped == (platform.rows * platform.cols)) {
-			break;
-		}
-	}
+        if (skipped == (platform.rows * platform.cols)) {
+            break;
+        }
+    }
 
     // stop the timer
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - start
     ); 
 
-	// int debug;
-	// e_read(&dev, 0, 0, 0x7036, &debug, sizeof(int));
-	// cout << "DEBUG " << debug << endl;
+    // int debug;
+    // e_read(&dev, 0, 0, 0x7036, &debug, sizeof(int));
+    // cout << "DEBUG " << debug << endl;
 
-	// copy scaled image
-	e_mem_t *newPixelsPmem = (e_mem_t*) &new_mbuf;
-	uint8_t* newPixels = (uint8_t *) newPixelsPmem->base;
+    // copy scaled image
+    e_mem_t *newPixelsPmem = (e_mem_t*) &new_mbuf;
+    uint8_t* newPixels = (uint8_t *) newPixelsPmem->base;
     (*newImage)->pixels = newPixels;
 
     cout << "Time for the kernel: " << duration.count() << " microseconds" << endl; 
@@ -130,10 +130,10 @@ int main(void) {
     e_reset_system();
     e_get_platform_info(&platform);
 
-	e_open(&dev, 0, 0, platform.rows, platform.cols);
+    e_open(&dev, 0, 0, platform.rows, platform.cols);
     if ( E_OK != e_load_group("../../device/build/e_interpolation", &dev, 0, 0, platform.rows, platform.cols, E_TRUE) ) {
-		cout << "Error while loading epiphany program" << endl;
-		return -1;
+        cout << "Error while loading epiphany program" << endl;
+        return -1;
     }
 
     VideoCapture cap("../../../assets/video.mp4"); 
@@ -167,11 +167,11 @@ int main(void) {
         // convert opencv frame to SDL surface
         IplImage opencvimg = cvIplImage(frame);
         SDL_Surface *image = SDL_CreateRGBSurfaceFrom((void*)opencvimg.imageData,
-                opencvimg.width,
-                opencvimg.height,
-                opencvimg.depth * opencvimg.nChannels,
-                opencvimg.widthStep,
-                rmask, gmask, bmask, amask
+            opencvimg.width,
+            opencvimg.height,
+            opencvimg.depth * opencvimg.nChannels,
+            opencvimg.widthStep,
+            rmask, gmask, bmask, amask
         );
 
         if (!image){

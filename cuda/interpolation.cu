@@ -25,16 +25,16 @@ void cudasafe(int error, const char* message, const char* file, int line) {
 }
 
 __global__ void cudaTransform(
-        int bx,
-        int by,
-        uint8_t *output,
-        uint8_t *input,
-        uint16_t pitchOutput,
-        uint16_t pitchInput,
-        uint16_t bytesPerPixelInput,
-        uint16_t bytesPerPixelOutput,
-        float xRatio,
-        float yRatio
+    int bx,
+    int by,
+    uint8_t *output,
+    uint8_t *input,
+    uint16_t pitchOutput,
+    uint16_t pitchInput,
+    uint16_t bytesPerPixelInput,
+    uint16_t bytesPerPixelOutput,
+    float xRatio,
+    float yRatio
 ){
     bilinearTransform(bx, by, output, input, pitchOutput, pitchInput, bytesPerPixelInput, bytesPerPixelOutput, xRatio, yRatio);
 }
@@ -145,12 +145,12 @@ int main(void) {
         // convert opencv frame to SDL surface
         IplImage opencvimg = cvIplImage(frame);
         SDL_Surface *image = SDL_CreateRGBSurfaceFrom((void*)opencvimg.imageData,
-            opencvimg.width,
-            opencvimg.height,
-            opencvimg.depth * opencvimg.nChannels,
-            opencvimg.widthStep,
-            rmask, gmask, bmask, amask
-        );
+                opencvimg.width,
+                opencvimg.height,
+                opencvimg.depth * opencvimg.nChannels,
+                opencvimg.widthStep,
+                rmask, gmask, bmask, amask
+                );
 
         if (!image){
             printf("IMG_Load: %s\n", IMG_GetError());

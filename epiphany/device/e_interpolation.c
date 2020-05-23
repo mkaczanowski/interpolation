@@ -37,8 +37,8 @@ void waitForLock() {
 int main(void) {
     volatile uint16_t* pitchOutput = (uint16_t*) 0x7000;
     volatile uint16_t* pitchInput = (uint16_t*) 0x7004;
-    volatile int* imageByteLength = (int*) 0x7008;
-    volatile int* newImageByteLength = (int*) 0x7012;
+    volatile uint16_t* bytesPerPixelInput = (uint16_t*) 0x7008;
+    volatile uint16_t* bytesPerPixelOutput = (uint16_t*) 0x7012;
     volatile int* newWidth = (int*) 0x7016;
     volatile int* newHeight = (int*) 0x7020;
     volatile float* xRatio = (float*) 0x7024;
