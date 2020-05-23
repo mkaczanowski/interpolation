@@ -5,6 +5,7 @@
 #include <e-hal.h>
 #include <e-loader.h>
 #include <unistd.h>
+#include <chrono>
 
 #include "../../png/savepng.h"
 #include "../../lib/lib.h"

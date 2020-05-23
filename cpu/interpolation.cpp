@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/types_c.h>
+#include <chrono>
 
 #include "../png/savepng.h"
 #include "../lib/lib.h"

@@ -4,6 +4,7 @@
 #include <opencv2/core/types_c.h>
 #include <cuda_runtime_api.h>
 #include <cuda.h>
+#include <chrono>
 
 #include "../png/savepng.h"
 #include "../lib/lib.h"
