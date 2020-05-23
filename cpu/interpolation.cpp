@@ -48,7 +48,18 @@ void processImage(SDL_Surface *image, SDL_Surface **newImage, uint8_t **oldPixel
     // bilinear transform on CUDA device
     for (int x = 0; x < newWidth; x++) {
         for (int y = 0; y < newHeight; y++) {
-            bilinearTransform(x, y, *newPixels, *oldPixels, (*newImage)->pitch, image->pitch, image->format->BytesPerPixel, (*newImage)->format->BytesPerPixel, xRatio, yRatio);
+            bilinearTransform(
+                x,
+                y,
+                *newPixels,
+                *oldPixels,
+                (*newImage)->pitch,
+                image->pitch,
+                image->format->BytesPerPixel,
+                (*newImage)->format->BytesPerPixel,
+                xRatio,
+                yRatio
+            );
         }
     }
 
@@ -98,11 +109,11 @@ int main(void) {
         // convert opencv frame to SDL surface
         IplImage opencvimg = cvIplImage(frame);
         SDL_Surface *image = SDL_CreateRGBSurfaceFrom((void*)opencvimg.imageData,
-                opencvimg.width,
-                opencvimg.height,
-                opencvimg.depth * opencvimg.nChannels,
-                opencvimg.widthStep,
-                rmask, gmask, bmask, amask
+            opencvimg.width,
+            opencvimg.height,
+            opencvimg.depth * opencvimg.nChannels,
+            opencvimg.widthStep,
+            rmask, gmask, bmask, amask
         );
 
         if (!image){
@@ -126,7 +137,7 @@ int main(void) {
         }
 
         SDL_FreeSurface(image);
-		break;
+        break;
     }
 
     cap.release();

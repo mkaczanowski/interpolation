@@ -16,7 +16,6 @@ const uint32_t rmask = 0x00ff0000;
 const uint32_t gmask = 0x0000ff00;
 const uint32_t bmask = 0x000000ff;
 
-
 void cudasafe(int error, const char* message, const char* file, int line) {
     if (error != cudaSuccess) {
         fprintf(stderr, "CUDA Error: %s : %i. In %s line %d\n", message, error, file, line);
@@ -24,7 +23,18 @@ void cudasafe(int error, const char* message, const char* file, int line) {
     }
 }
 
-__global__ void cudaTransform(int bx, int by, uint8_t *output, uint8_t *input, uint16_t pitchOutput, uint16_t pitchInput, uint16_t bytesPerPixelInput, uint16_t bytesPerPixelOutput, float xRatio, float yRatio){
+__global__ void cudaTransform(
+        int bx,
+        int by,
+        uint8_t *output,
+        uint8_t *input,
+        uint16_t pitchOutput,
+        uint16_t pitchInput,
+        uint16_t bytesPerPixelInput,
+        uint16_t bytesPerPixelOutput,
+        float xRatio,
+        float yRatio
+){
     bilinearTransform(bx, by, output, input, pitchOutput, pitchInput, bytesPerPixelInput, bytesPerPixelOutput, xRatio, yRatio);
 }
 
@@ -74,7 +84,18 @@ void processImage(SDL_Surface *image, SDL_Surface **newImage, uint8_t **oldPixel
     cudaEventRecord(start, 0);
 
     // bilinear transform on CUDA device
-    cudaTransform<<<grid,1>>>(-1, -1, *newPixels, *oldPixels, (*newImage)->pitch, image->pitch, image->format->BytesPerPixel, (*newImage)->format->BytesPerPixel, xRatio, yRatio);
+    cudaTransform<<<grid,1>>>(
+        -1,
+        -1,
+        *newPixels,
+        *oldPixels,
+        (*newImage)->pitch,
+        image->pitch,
+        image->format->BytesPerPixel,
+        (*newImage)->format->BytesPerPixel,
+        xRatio,
+        yRatio
+    );
 
     // stop the timer
     cudaEventRecord(stop, 0);
@@ -123,11 +144,11 @@ int main(void) {
         // convert opencv frame to SDL surface
         IplImage opencvimg = cvIplImage(frame);
         SDL_Surface *image = SDL_CreateRGBSurfaceFrom((void*)opencvimg.imageData,
-                opencvimg.width,
-                opencvimg.height,
-                opencvimg.depth * opencvimg.nChannels,
-                opencvimg.widthStep,
-                rmask, gmask, bmask, amask
+            opencvimg.width,
+            opencvimg.height,
+            opencvimg.depth * opencvimg.nChannels,
+            opencvimg.widthStep,
+            rmask, gmask, bmask, amask
         );
 
         if (!image){

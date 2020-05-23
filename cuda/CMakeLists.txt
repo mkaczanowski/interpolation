@@ -17,15 +17,15 @@ set(
     CUDA_NVCC_FLAGS
     ${CUDA_NVCC_FLAGS};
     -Wall -Wextra
-)
+    )
 
 cuda_add_executable(
-	interpolation
-	interpolation.cu
-	../lib/lib.c
-	../lib/lib.h
-	../png/savepng.c
-	../png/savepng.h
+    interpolation
+    interpolation.cu
+    ../lib/lib.c
+    ../lib/lib.h
+    ../png/savepng.c
+    ../png/savepng.h
 )
 
 target_link_libraries(

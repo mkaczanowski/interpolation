@@ -28,5 +28,5 @@ add_executable(
 
 target_link_libraries(
     e_interpolation
-	${E_LIB}
+    ${E_LIB}
 )
