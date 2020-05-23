@@ -32,25 +32,11 @@ void waitForLock(volatile int* debug, volatile int* lock) {
 }
 
 int main(void) {
+	int i = 0;
 	volatile int* lock = (int*) 0x7032;
 	volatile int* debug = (int*) 0x7036;
 
-    volatile uint16_t* pitchOutput = (uint16_t*) 0x7000;
-    volatile uint16_t* pitchInput = (uint16_t*) 0x7004;
-    volatile uint16_t* bytesPerPixelInput = (uint16_t*) 0x7008;
-    volatile uint16_t* bytesPerPixelOutput = (uint16_t*) 0x7012;
-    volatile int* newWidth = (int*) 0x7016;
-    volatile int* newHeight = (int*) 0x7020;
-    volatile float* xRatio = (float*) 0x7024;
-    volatile float* yRatio = (float*) 0x7028;
-
     waitForLock(debug, lock);
-
-    int row = e_group_config.core_row;
-    int col = e_group_config.core_col;
-    int total_cores = e_group_config.group_rows * e_group_config.group_cols;
-
-    int core_num = cores[row][col];
 
     if ( E_OK != e_shm_attach(&old_emem, old_shm_name) ) {
         return EXIT_FAILURE;
@@ -60,40 +46,60 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    e_memseg_t *oldPixelsPmem = (e_memseg_t*) &old_emem;
-    uint8_t* oldPixels = (uint8_t *) (oldPixelsPmem->ephy_base);
+	while(1) {
+		if (*lock == 1) continue;
+		i++;
 
-    e_memseg_t *newPixelsPmem = (e_memseg_t*) &new_emem;
-    uint8_t* newPixels = (uint8_t *) (newPixelsPmem->ephy_base);
+    	volatile uint16_t* pitchOutput = (uint16_t*) 0x7000;
+    	volatile uint16_t* pitchInput = (uint16_t*) 0x7004;
+    	volatile uint16_t* bytesPerPixelInput = (uint16_t*) 0x7008;
+    	volatile uint16_t* bytesPerPixelOutput = (uint16_t*) 0x7012;
+    	volatile int* newWidth = (int*) 0x7016;
+    	volatile int* newHeight = (int*) 0x7020;
+    	volatile float* xRatio = (float*) 0x7024;
+    	volatile float* yRatio = (float*) 0x7028;
 
-    // split input image between cores
-    int x_chunk_size = (int) (*newWidth / total_cores);
-    int start = (core_num - 1) * x_chunk_size;
-    int end = start + x_chunk_size;
-    if (core_num == total_cores) {
-        end = *newWidth; // the last core handles remaining chunk
-    }
+    	int row = e_group_config.core_row;
+    	int col = e_group_config.core_col;
+    	int total_cores = e_group_config.group_rows * e_group_config.group_cols;
 
-    for (int x = start; x < end; x++) {
-        for (int y = 0; y < *newHeight; y++) {
-            bilinearTransform(
-                x,
-                y,
-                newPixels,
-                oldPixels,
+    	int core_num = cores[row][col];
 
-                *pitchOutput,
-                *pitchInput,
-                *bytesPerPixelInput,
-                *bytesPerPixelOutput,
-                *xRatio,
-                *yRatio
-            );
-        }
-    }
+    	e_memseg_t *oldPixelsPmem = (e_memseg_t*) &old_emem;
+    	uint8_t* oldPixels = (uint8_t *) (oldPixelsPmem->ephy_base);
 
-    *debug = total_cores;
-    *lock = 1;
+    	e_memseg_t *newPixelsPmem = (e_memseg_t*) &new_emem;
+    	uint8_t* newPixels = (uint8_t *) (newPixelsPmem->ephy_base);
+
+    	// split input image between cores
+    	int x_chunk_size = (int) (*newWidth / total_cores);
+    	int start = (core_num - 1) * x_chunk_size;
+    	int end = start + x_chunk_size;
+    	if (core_num == total_cores) {
+    	    end = *newWidth; // the last core handles remaining chunk
+    	}
+
+    	for (int x = start; x < end; x++) {
+    	    for (int y = 0; y < *newHeight; y++) {
+    	        bilinearTransform(
+    	            x,
+    	            y,
+    	            newPixels,
+    	            oldPixels,
+
+    	            *pitchOutput,
+    	            *pitchInput,
+    	            *bytesPerPixelInput,
+    	            *bytesPerPixelOutput,
+    	            *xRatio,
+    	            *yRatio
+    	        );
+    	    }
+    	}
+
+    	*debug = i;
+    	*lock = 1;
+	}
 
     return EXIT_SUCCESS;
 }

@@ -153,11 +153,9 @@ int main(void) {
         // read frame from a video stream
         cap >> frame;
 
-        // select 5 frames in the middle
+        // select 100th frame
         if (i++ < 100) {
             continue;
-        } else if( i > 105)  {
-            break;
         }
 
         if (frame.empty()) {
@@ -195,6 +193,7 @@ int main(void) {
         }
 
         SDL_FreeSurface(image);
+		break;
     }
 
     cap.release();
