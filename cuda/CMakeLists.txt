@@ -16,8 +16,7 @@ set(CUDA_SEPARABLE_COMPILATION ON)
 set(
     CUDA_NVCC_FLAGS
     ${CUDA_NVCC_FLAGS};
-    -Wall -Wextra
-    )
+) 
 
 cuda_add_executable(
     interpolation
