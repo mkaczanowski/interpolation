@@ -19,10 +19,7 @@ const char new_shm_name[] = "new_pixels_shm";
 e_memseg_t old_emem;
 e_memseg_t new_emem;
 
-volatile uint8_t* lock = (uint8_t*) 0x7032;
-volatile int* debug = (int*) 0x7036;
-
-void waitForLock() {
+void waitForLock(volatile int* debug, volatile int* lock) {
     *debug = 0;
     *lock = 1;
 
@@ -35,6 +32,9 @@ void waitForLock() {
 }
 
 int main(void) {
+	volatile int* lock = (int*) 0x7032;
+	volatile int* debug = (int*) 0x7036;
+
     volatile uint16_t* pitchOutput = (uint16_t*) 0x7000;
     volatile uint16_t* pitchInput = (uint16_t*) 0x7004;
     volatile uint16_t* bytesPerPixelInput = (uint16_t*) 0x7008;
@@ -44,7 +44,7 @@ int main(void) {
     volatile float* xRatio = (float*) 0x7024;
     volatile float* yRatio = (float*) 0x7028;
 
-    waitForLock();
+    waitForLock(debug, lock);
 
     int row = e_group_config.core_row;
     int col = e_group_config.core_col;

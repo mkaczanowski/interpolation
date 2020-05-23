@@ -11,9 +11,8 @@ set(CMAKE_CXX_STANDARD 14)
 set_source_files_properties( ../../lib/lib.c PROPERTIES LANGUAGE C )
 
 # add epiphany libs
-set(E_SDK /opt/adapteva/esdk)
-include_directories( ${ESDK}/tools/e-gnu.armv7l/epiphany-elf/include )
-find_library(E_LIB e-lib HINTS ${ESDK}/tools/e-gnu.armv7l/epiphany-elf/lib)
+include_directories( /opt/adapteva/esdk/tools/e-gnu.armv7l/epiphany-elf/include )
+find_library(E_LIB e-lib HINTS /opt/adapteva/esdk/tools/e-gnu.armv7l/epiphany-elf/lib)
 
 add_compile_options(-Wall -Wextra -g -O2)
 
