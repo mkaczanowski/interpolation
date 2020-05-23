@@ -48,7 +48,7 @@ int main(void) {
 
     int row = e_group_config.core_row;
     int col = e_group_config.core_col;
-    int total_cores = e_group_config.group_rows * e_group_config.core_col;
+    int total_cores = e_group_config.group_rows * e_group_config.group_cols;
 
     int core_num = cores[row][col];
 
@@ -67,7 +67,7 @@ int main(void) {
     uint8_t* newPixels = (uint8_t *) (newPixelsPmem->ephy_base);
 
     // split input image between cores
-    int x_chunk_size = (int) (*newWidth / 16); // TODO: total_cores
+    int x_chunk_size = (int) (*newWidth / total_cores);
     int start = (core_num - 1) * x_chunk_size;
     int end = start + x_chunk_size;
     if (core_num == 16) {

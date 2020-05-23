@@ -16,6 +16,7 @@ set_source_files_properties( ../../lib/lib.c PROPERTIES LANGUAGE CXX )
 include_directories( /opt/adapteva/esdk/tools/host/include )
 find_library(E_HAL e-hal HINTS /opt/adapteva/esdk/tools/host/lib)
 find_library(E_LOADER e-loader HINTS /opt/adapteva/esdk/tools/host/lib)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,/opt/adapteva/esdk/tools/e-gnu.armv7l/lib")
 
 add_compile_options(-Wall -Wextra)
 
