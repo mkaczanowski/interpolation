@@ -70,7 +70,7 @@ int main(void) {
     int x_chunk_size = (int) (*newWidth / total_cores);
     int start = (core_num - 1) * x_chunk_size;
     int end = start + x_chunk_size;
-    if (core_num == 16) {
+    if (core_num == total_cores) {
         end = *newWidth; // the last core handles remaining chunk
     }
 
