@@ -110,7 +110,8 @@ void processImage(SDL_Surface *image, SDL_Surface **newImage, uint8_t **oldPixel
     cout << "Time for the kernel: " << time << " ms" << endl; 
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+	long frame_num = strtol(argv[1], NULL, 10);
     VideoCapture cap("../../assets/video.mp4"); 
 
     if(!cap.isOpened()){
@@ -132,10 +133,8 @@ int main(void) {
         cap >> frame;
 
         // select 5 frames in the middle
-        if (i++ < 100) {
+        if (i++ < frame_num) {
             continue;
-        } else if( i > 105)  {
-            break;
         }
 
         if (frame.empty()) {
@@ -173,6 +172,7 @@ int main(void) {
         }
 
         SDL_FreeSurface(image);
+		break;
     }
 
     cap.release();

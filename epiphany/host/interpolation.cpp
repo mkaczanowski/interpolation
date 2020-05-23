@@ -125,7 +125,9 @@ void processImage(SDL_Surface *image, SDL_Surface **newImage, int rWidth) {
     cout << "Time for the kernel: " << duration.count() << " microseconds" << endl; 
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+	long frame_num = strtol(argv[1], NULL, 10);
+
     e_init(NULL);
     e_reset_system();
     e_get_platform_info(&platform);
@@ -153,8 +155,8 @@ int main(void) {
         // read frame from a video stream
         cap >> frame;
 
-        // select 100th frame
-        if (i++ < 100) {
+        // select frame
+        if (i++ < frame_num) {
             continue;
         }
 
