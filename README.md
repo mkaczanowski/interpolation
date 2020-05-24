@@ -4,7 +4,7 @@ This repo holds three implementations of the same bilinear interpolation algorit
 * GPU (CUDA)
 * Many-Core Epiphany chip
 
-The code is used as reference to the blog post:
+The code is used mainly as reference to the blog post:
 > http://mkaczanowski.com/parallella-part-10-power-efficiency
 
 # Usage
