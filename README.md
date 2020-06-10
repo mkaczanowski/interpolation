@@ -1,6 +1,7 @@
 # Bilinear interpolation
 This repo holds three implementations of the same bilinear interpolation algorithm:
-* CPU
+* CPU (single thread)
+* CPU Threaded (multithreaded version of CPU implementation)
 * GPU (CUDA)
 * Many-Core Epiphany chip
 
